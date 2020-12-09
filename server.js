@@ -7,9 +7,38 @@ app.listen(8080, function(){
 
 
 app.get('/', function(request,response){
+    
+
+
+
     response.sendFile(__dirname + '/index.html');
 });
 
 app.get('/url', function(request,response){
-    response.send('url 입력 완료');
+
+
+    var old_url="wwwnnavercomsfjasfksdfkljaslfjlesjlfkjsdalkjflkajsfljasfl";
+    var new_url=encoding_62(old_url);
+
+    response.send(new_url);
 });
+
+function encoding_62(origin){
+    
+    var n = origin.length;
+    if (n === 0) {
+        return '0';
+    }
+    var digits = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    var result = ''; 
+    while (n > 0) {
+        result = digits[n % digits.length] + result;
+        n = parseInt(n / digits.length, 10);
+    }
+    
+    return result;
+    
+
+  
+    
+}
