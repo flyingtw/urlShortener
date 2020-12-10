@@ -1,0 +1,34 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>url들</title>
+    </head>
+    <body>
+        <h2>url 리스트</h2>
+        <table border='1'>
+            <colgroup>
+                <col width='60'><col width='200'><col width='100'>
+            </colgroup>
+            <thead>
+                <tr>
+                    <th>번호</th>
+                    <th>old url</th>
+                    <th>short url</th>
+                    <th>클릭수</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% for(i = 0; i < list.length; i++) { %>
+                <tr>
+                    <td><%=i+1 %></td>
+                    <td><%=list[i].oldURL %></td>
+                    <td><%=list[i].shortURL %></td>
+                    <td><%=list[i].clicked %></td>
+                </tr>
+                <% } %>
+            </tbody>
+        </table boader='1'>
+        
+        <button onclick="location.href='../input'">돌아가기</button>
+    </body>
+</html>
