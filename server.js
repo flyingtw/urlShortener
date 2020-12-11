@@ -1,3 +1,5 @@
+var http = require('http');
+
 const express = require('express');
 const app = express();
 
@@ -20,6 +22,7 @@ var base62 = require("base62/lib/ascii");
 
 
 
+
 // DB 목록들 보여주기
 app.get('/list',function(req,res){
     var sql='select * from urls';
@@ -29,53 +32,6 @@ app.get('/list',function(req,res){
     });
 });
 
-
-// url 입력받기
-app.get('/input', function(req,res){
-    
-    res.render('input');
-});
-
-app.post('/input', function(req,res){
-    
-    var url=req.body.oldURL;
-    var sql = 'select * from urls where oldURL = "'+url+'";';
-    conn.query(sql, function(err,rows, fields){
-        if(err)console.log('input query is not executed.\n'+err);
-        else {
-            console.log("sql = ",sql);
-            console.log(rows);
-            if(rows.length==0){
-                var basic = "http://localhost/";
-                // 검색했을때 없음 -> 변환 후, insert 후, 표시
-                console.log("비어있음 -> 변환하고 저장해야함");
-                // 변환하고 
-                console.log(url);
-                var shortenedURL = encoding_62(url);
-                console.log("변환된 url :" +basic+ shortenedURL);
-                
-                // DB에 insert 해주고 변환된 url 출력
-                sql = 'INSERT INTO urls (oldURL, shortURL, clicked) VALUES("'+url+'", "'+shortenedURL+'", 1);';
-                conn.query(sql, function(err,result){
-                    if(err) throw err;
-                    console.log("새로운 URL 추가됨 : " + url );
-                });
-
-                
-            }else{
-                
-                console.log("이미 변환한것. -> 변환된거 출력")
-                console.log(rows[0].shortURL);
-                
-            }
-
-            
-            
-            
-            res.redirect('/input');
-        }
-    });
-});
 
 // index 화면
 app.get('/', function(request,response){
@@ -107,13 +63,80 @@ function encoding_62(origin){
   
     
     return encoded;
-    
-
-  
-    
 }
 
-
+// 서버 연결
 app.listen(8080, function(){
     console.log('listening on 8080')
 });
+
+
+// 화면 띄워주기
+app.get('/urlShorten', function(req,res){
+    res.sendFile(__dirname + '/views/urlShorten.html');
+});
+
+
+// 버튼 클릭시 post 형식으로 url 보내면 DB에서 조회 후 처리하기
+app.post('/ajax',function(req,res){
+
+
+    var url=req.body.url;
+    var responseData ={};
+    var basic = "http://localhost:8080/";
+
+    var sql = 'select * from urls where oldURL = "'+url+'";';
+    conn.query(sql, function(err,rows, fields){
+        if(err)console.log('input query is not executed.\n'+err);
+        else {
+            console.log("sql = ",sql);
+            console.log(rows);
+            if(rows.length==0){
+                
+                // 검색했을때 없음 -> 변환 후, insert 후, 표시
+                console.log(url);
+                var shortenedURL = encoding_62(url);
+                console.log("변환된 url :" +basic+ shortenedURL);
+
+                // DB에 insert 해주고 변환된 url 출력
+                sql = 'INSERT INTO urls (oldURL, shortURL, clicked) VALUES("'+url+'", "'+shortenedURL+'", 1);';
+                conn.query(sql, function(err,result){
+                    if(err) throw err;
+                    console.log("새로운 URL 추가됨 : " + url );
+                });
+
+                // 변환된 url 반환
+                responseData.status="새로 변환됨";
+                responseData.url=basic + shortenedURL;
+                res.json(responseData);                
+            }else{
+                
+                console.log("이미 변환한것. -> 변환된거 출력")
+                console.log(rows[0].shortURL);
+                responseData.status="이미 있음";
+                responseData.url = basic + rows[0].shortURL;
+                res.json(responseData);
+            }
+        }
+    });
+});
+
+// 브라우저에서 short URL을 입력하면
+// DB에서 검색해서 원래 URL로 redirect
+app.get("/:url",function(req,res){
+    var shortUrl = req.params.url;
+    var sql = 'select oldURL from urls where shortURL = "'+shortUrl+'";';
+    conn.query(sql, function(err,rows, fields){
+        if(err)console.log('input query is not executed.\n'+err);
+        else {
+            console.log("sql = ",sql);
+            console.log(rows);
+            if(rows.length==0){
+                console.log("old URL이 없음");
+            }else{
+                var urlForRedirect = rows[0].oldURL;
+                res.redirect(301,urlForRedirect);
+            }
+        }
+    });
+})
