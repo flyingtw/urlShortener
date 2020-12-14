@@ -7,6 +7,8 @@ const ejs = require('ejs');
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 
+var path = require('path');
+
 var db_config = require(__dirname + '/config/database.js');
 var conn = db_config.init();
 db_config.connect(conn);
@@ -20,8 +22,13 @@ app.use(bodyParser.urlencoded({extended : false}));
 // 62진수로 변환해주는 모듈
 var base62 = require("base62/lib/ascii");
 
+// css,img 등 정적파일 경로 설정
+app.use(express.static(path.join(__dirname, 'public')));
 
-
+// 서버 연결
+app.listen(8080, function(){
+    console.log('listening on 8080')
+});
 
 
 // DB 목록들 보여주기
@@ -46,7 +53,7 @@ function encoding_62(origin){
     var n = origin.length;
     var urlASCII = 0;
     for(var i = 0;i<n;i++){
-        urlASCII+=origin.charCodeAt(i)*(i+1);
+        urlASCII+=origin.charCodeAt(i)*(i+1);//문자열 index값 곱해서 유일값 만들기
     }
     
     /*(8자리 맞추고 싶을 경우) 
@@ -64,10 +71,7 @@ function encoding_62(origin){
     return encoded;
 }
 
-// 서버 연결
-app.listen(8080, function(){
-    console.log('listening on 8080')
-});
+
 
 
 // 화면 띄워주기
@@ -111,7 +115,13 @@ app.post('/ajax',function(req,res){
                 responseData.url=basic + shortenedURL;
                 res.json(responseData);                
             }else{
-                
+                sql = 'UPDATE urls SET clicked = clicked + 1 WHERE oldURL = "'+url+'";';
+                conn.query(sql, function(err,result){
+                    if(err) throw err;
+                    console.log("클릭수 추가됨 : " + url );
+                });
+
+                console.log(url);
                 console.log("이미 변환한것. -> 변환된거 출력")
                 console.log(rows[0].shortURL);
                 responseData.status="이미 있음";
@@ -126,7 +136,7 @@ app.post('/ajax',function(req,res){
 // DB에서 검색해서 원래 URL로 redirect
 app.get("/:url",function(req,res){
     var shortUrl = req.params.url;
-    var sql = 'select oldURL from urls where shortURL = "'+shortUrl+'";';
+    var sql = 'SELECT oldURL FROM urls WHERE shortURL = "'+shortUrl+'";';
     conn.query(sql, function(err,rows, fields){
         if(err)console.log('input query is not executed.\n'+err);
         else {

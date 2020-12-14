@@ -3,6 +3,7 @@
     <head>
         <meta charset="utf-8">
         <title>url Shortner</title>
+        <link rel = "stylesheet" type="text/css" href="css/style.css">
         <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
         <script>
             $(document).ready(function(){
@@ -26,12 +27,17 @@
                         alert("Ajax failed")
                     })
                 });
-
-                //shorten 된 url을 클릭 하였을시
-                $(".result").click(function(){
+                /*
+                $(".result").on("click",function(){
                     
-                    var shortURL = $('.result').val();
-                    alert(shortURL);
+                    $('.result').text().select();
+                    document.execCommand("copy");
+                    alert("url 복사 완료");
+                });
+                */
+                //전체목록 버튼 클릭시
+                $(".listBtn").click(function(){
+                    window.location.replace("http://localhost:8080/list");
                 })
             });
         </script>
@@ -41,11 +47,11 @@
         </style>
         <link rel="stylesheet" href="mystyle.scss">
         -->
+        
     </head>
 
 
     <body>
-
         <div class="container">
             <h1>
                 URL SHORTNER
@@ -57,18 +63,13 @@
                 </form>
             </div>
             <div class="already"></div>
-            <div>
-                <div class="result">
-                    <button type="button" class="ajaxSend btn--primary btn--inside uppercase">클립보드 복사</button>
-                </div>
-            </div>
+            <div class="result"></div>
             
             <div class="container__item container__item--bottom">
-                <p>전체 목록을 보고싶다면? <a href="http://localhost:8080/list" target="_blank">여기를 클릭!</p>
+                <p>전체 목록을 보고싶다면? 
+                <button type="button" class="listBtn btn--primary btn--inside uppercase">전체 조회 하기</button></p>
             </div>
         </div>
-
-        
     </body>
 
 </html>
