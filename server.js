@@ -17,6 +17,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended : false}));
 
 
+// 62진수로 변환해주는 모듈
 var base62 = require("base62/lib/ascii");
 
 
@@ -35,21 +36,19 @@ app.get('/list',function(req,res){
 
 // index 화면
 app.get('/', function(request,response){
-    response.sendFile(__dirname + '/index.html');
+    response.sendFile(__dirname + '/views/index.html');
 });
 
 
 
 
 function encoding_62(origin){
-    
-    var result="";
-
     var n = origin.length;
     var urlASCII = 0;
     for(var i = 0;i<n;i++){
-        urlASCII+=origin.charCodeAt(i);
+        urlASCII+=origin.charCodeAt(i)*(i+1);
     }
+    
     /*(8자리 맞추고 싶을 경우) 
 
     if(urlASCII<1000000){
@@ -80,7 +79,6 @@ app.get('/urlShorten', function(req,res){
 // 버튼 클릭시 post 형식으로 url 보내면 DB에서 조회 후 처리하기
 app.post('/ajax',function(req,res){
 
-
     var url=req.body.url;
     var responseData ={};
     var basic = "http://localhost:8080/";
@@ -91,12 +89,15 @@ app.post('/ajax',function(req,res){
         else {
             console.log("sql = ",sql);
             console.log(rows);
+            
             if(rows.length==0){
                 
                 // 검색했을때 없음 -> 변환 후, insert 후, 표시
                 console.log(url);
-                var shortenedURL = encoding_62(url);
+                
                 console.log("변환된 url :" +basic+ shortenedURL);
+
+                var shortenedURL = encoding_62(url);
 
                 // DB에 insert 해주고 변환된 url 출력
                 sql = 'INSERT INTO urls (oldURL, shortURL, clicked) VALUES("'+url+'", "'+shortenedURL+'", 1);';

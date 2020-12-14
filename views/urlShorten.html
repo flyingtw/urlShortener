@@ -2,10 +2,11 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <title>test.html</title>
+        <title>url Shortner</title>
         <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
         <script>
             $(document).ready(function(){
+                $(".result").hide();
                 $(".ajaxSend").on("click",function(){
                     var url = $('input[name=url]').val();
                     $.ajax({
@@ -18,6 +19,7 @@
                     .done(function(json){
                         $(".already").text(json.status);
                         $(".result").text(json.url);
+                        $(".result").show();
                     })
 
                     .fail(function(xhr, status, errorThrown){
@@ -43,22 +45,6 @@
 
 
     <body>
-        
-        <!--
-        <h1>url Shorten Page</h1>
-            <div class="input-line">
-                <form action="/ajax" method="POST">
-                    <input type="text" name="url" value="" placeholder="URL 입력">
-                </form>
-                <button class="ajaxSend">변환하기</button>
-            </div>
-        <div class="already"></div><br/>
-        <div>
-            <div class="result">
-
-            </div> 
-        </div>  
-        -->
 
         <div class="container">
             <h1>
@@ -71,7 +57,11 @@
                 </form>
             </div>
             <div class="already"></div>
-            <div class="result"></div>
+            <div>
+                <div class="result">
+                    <button type="button" class="ajaxSend btn--primary btn--inside uppercase">클립보드 복사</button>
+                </div>
+            </div>
             
             <div class="container__item container__item--bottom">
                 <p>전체 목록을 보고싶다면? <a href="http://localhost:8080/list" target="_blank">여기를 클릭!</p>
